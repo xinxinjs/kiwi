@@ -15,8 +15,8 @@ export const PROJECT_CONFIG = {
     distLangs: ['en-US', 'zh-TW'],
     googleApiKey: '',
     baiduApiKey: {
-      appId: '',
-      appKey: ''
+      appId: '20211019000977261',
+      appKey: 'QGybfwEiUZUlTZZ4dcnF'
     },
     baiduLangMap: {
       ['en-US']: 'en',

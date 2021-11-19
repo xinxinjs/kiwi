@@ -11,39 +11,11 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as baiduTranslate from 'baidu-translate';
 import { tsvFormatRows } from 'd3-dsv';
-import { getProjectConfig, getLangDir, withTimeout, translateText } from './utils';
+import { getProjectConfig, getLangDir, withTimeout, translateText, translateTextByBaidu } from './utils';
 import { importMessages } from './import';
 import { getAllUntranslatedTexts } from './mock';
 
 const CONFIG = getProjectConfig();
-
-/**
- * 百度单次翻译任务
- * @param text 待翻译文案
- * @param toLang 目标语种
- */
-function translateTextByBaidu(text, toLang) {
-  const {
-    baiduApiKey: { appId, appKey },
-    baiduLangMap
-  } = CONFIG;
-  return withTimeout(
-    new Promise((resolve, reject) => {
-      baiduTranslate(appId, appKey, baiduLangMap[toLang], 'zh')(text)
-        .then(data => {
-          if (data && data.trans_result) {
-            resolve(data.trans_result);
-          } else {
-            reject(`\n百度翻译api调用异常 error_code: ${data.error_code}, error_msg: ${data.error_msg}`);
-          }
-        })
-        .catch(err => {
-          reject(err);
-        });
-    }),
-    3000
-  );
-}
 
 /** 文案首字母大小 变量小写 */
 function textToUpperCaseByFirstWord(text) {

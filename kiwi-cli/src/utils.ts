@@ -7,6 +7,7 @@ import * as _ from 'lodash';
 import * as inquirer from 'inquirer';
 import * as fs from 'fs';
 import { PROJECT_CONFIG, KIWI_CONFIG_FILE } from './const';
+import * as baiduTranslate from 'baidu-translate';
 
 function lookForFiles(dir: string, fileName: string): string {
   const files = fs.readdirSync(dir);
@@ -160,6 +161,35 @@ function translateText(text, toLang) {
   );
 }
 
+/**
+ * 百度单次翻译任务
+ * @param text 待翻译文案
+ * @param toLang 目标语种
+ */
+ function translateTextByBaidu(text, toLang) {
+  const CONFIG = getProjectConfig();
+  const {
+    baiduApiKey: { appId, appKey },
+    baiduLangMap
+  } = CONFIG;
+  return withTimeout(
+    new Promise((resolve, reject) => {
+      baiduTranslate(appId, appKey, baiduLangMap[toLang], 'zh')(text)
+        .then(data => {
+          if (data && data.trans_result) {
+            resolve(data.trans_result);
+          } else {
+            reject(`\n百度翻译api调用异常 error_code: ${data.error_code}, error_msg: ${data.error_msg}`);
+          }
+        })
+        .catch(err => {
+          reject(err);
+        });
+    }),
+    3000
+  );
+}
+
 function findMatchKey(langObj, text) {
   for (const key in langObj) {
     if (langObj[key] === text) {
@@ -247,5 +277,6 @@ export {
   findMatchValue,
   flatten,
   lookForFiles,
-  getTranslateOriginType
+  getTranslateOriginType,
+  translateTextByBaidu
 };
