@@ -23,7 +23,7 @@ function findAllChineseText(dir: string) {
   const dirPath = path.resolve(process.cwd(), dir);
   const files = getSpecifiedFiles(dirPath, CONFIG.ignoreDir, CONFIG.ignoreFile);
   const filterFiles = files.filter(file => {
-    return file.endsWith('.ts') || file.endsWith('.tsx') || file.endsWith('.vue') || file.endsWith('.js') || file.endsWith('.jsx');
+    return file.endsWith('.ts') || file.endsWith('.tsx') || file.endsWith('.vue');
   });
   const allTexts = filterFiles.reduce((pre, file) => {
     const code = readFile(file);
