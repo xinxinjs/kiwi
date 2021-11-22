@@ -1,16 +1,16 @@
 # 🐤 kiwi cli
 
-Kiwi 的 CLI 工具
+Kiwi 的 CLI 工具，基于阿里巴巴的kiwi-cli进行封装，kiwi --extract 命令的时候支持百度翻译
 
 ## 如何使用
 
-> yarn global add kiwi-clis
+> yarn global add ca-kiwi-clis
 
 > 推荐与[🐤 Kiwi-国际化全流程解决方案](https://github.com/alibaba/kiwi)结合使用
 
 ## CLI 参数
 
-### kiwi `--init`
+### ca-kiwi `--init`
 
 初始化项目，生成 kiwi 的配置文件 `kiwi-config.json`
 
@@ -50,48 +50,48 @@ Kiwi 的 CLI 工具
 }
 ```
 
-### kiwi `--extract`
+### ca-kiwi `--extract`
 
 一键批量替换指定文件夹下的所有文案
 
 ```shell script
-kiwi --extract [dirPath]
+ca-kiwi --extract [dirPath]
 ```
 
 ![批量替换](https://raw.githubusercontent.com/alibaba/kiwi/master/kiwi-cli/public/extract.gif)
 
-### kiwi `--import`
+### ca-kiwi `--import`
 
 导入翻译文案，将翻译人员翻译的文案，导入到项目中
 
 ```shell script
 # 导入送翻后的文案
-kiwi --import [filePath] en-US
+ca-kiwi --import [filePath] en-US
 ```
 
-### kiwi `--export`
+### ca-kiwi `--export`
 
 导出未翻译的文案
 
 ```shell script
 # 导出指定语言的文案，lang取值为配置中distLangs值，如en-US导出还未翻译成英文的中文文案
-kiwi --export [filePath] en-US
+ca-kiwi --export [filePath] en-US
 ```
 
-### kiwi `--sync`
+### ca-kiwi `--sync`
 
 同步各种语言的文案，同步未翻译文件
 
-### kiwi `--mock`
+### ca-kiwi `--mock`
 
 使用 Google 翻译，翻译未翻译的文案
 如果同时配置baiduApiKey与baiduApiKey 则命令行可手动选择翻译源
 
-### kiwi `--translate`
+### ca-kiwi `--translate`
 
 全量翻译未翻译的中文文案，翻译结果自动导入 en-US zh-TW等目录
 
 ```shell script
-kiwi --translate
+ca-kiwi --translate
 ```
 
