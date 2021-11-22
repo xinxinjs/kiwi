@@ -9,12 +9,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/alibaba/kiwi.git"
+    "url": "https://github.com/xinxinjs/kiwi.git"
   },
   "keywords": [
     "cli",
     "kiwi",
-    "i18n"
+    "i18n",
+    "百度翻译"
   ],
   "bin": {
     "ca-kiwi": "dist/index.js"
