@@ -165,7 +165,6 @@ function extractAll(dirPath?: string) {
         .then(() => {
           // 添加 import I18N
           if (!hasImportI18N(currentFilename)) {
-            console.log(123)
             const code = createImportI18N(currentFilename);
 
             writeFile(currentFilename, code);
