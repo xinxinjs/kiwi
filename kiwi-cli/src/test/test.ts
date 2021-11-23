@@ -1,5 +1,5 @@
 function aas() {
-  const p = '船运';
-  const p2 = '周五';
-  const p3 = '下班了，真开心';
+  const p = '登录';
+  const p2 = '注册';
+  const p3 = '清输入正确的密码';
 }

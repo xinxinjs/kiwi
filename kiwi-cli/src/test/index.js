@@ -1,5 +1,5 @@
 function a() {
-  const p = '工具';
-  const p2 = '增加询价';
-  const p3 = '服务项';
+  const p = '用户名';
+  const p2 = '个人中心';
+  const p3 = '收藏';
 }
