@@ -23,7 +23,7 @@ function findAllChineseText(dir: string) {
   const dirPath = path.resolve(process.cwd(), dir);
   const files = getSpecifiedFiles(dirPath, CONFIG.ignoreDir, CONFIG.ignoreFile);
   const filterFiles = files.filter(file => {
-    return file.endsWith('.ts') || file.endsWith('.tsx') || file.endsWith('.vue');
+    return file.endsWith('.ts') || file.endsWith('.tsx') || file.endsWith('.vue') || file.endsWith('.js') || file.endsWith('.jsx');
   });
   const allTexts = filterFiles.reduce((pre, file) => {
     const code = readFile(file);
@@ -91,7 +91,6 @@ function extractAll(dirPath?: string) {
     }
 
     let allTranslateTexts: any = [] // 翻译之后的文案数组
-
     // 使用Google翻译或者百度翻译翻译中文的前四位
     if (CONFIG.googleApiKey) {
       const translatePromises = targetStrs.reduce((prev, curr) => {

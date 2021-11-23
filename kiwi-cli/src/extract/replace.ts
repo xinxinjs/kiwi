@@ -156,7 +156,9 @@ function createImportI18N(filePath) {
   const isTsFile = _.endsWith(filePath, '.ts');
   const isTsxFile = _.endsWith(filePath, '.tsx');
   const isVueFile = _.endsWith(filePath, '.vue');
-  if (isTsFile || isTsxFile) {
+  const isJsFile = _.endsWith(filePath, '.js');
+  const isJsxFile = _.endsWith(filePath, '.jsx');
+  if (isTsFile || isTsxFile || isJsFile || isJsxFile) {
     const importStatement = `${CONFIG.importI18N}\n`;
     const pos = ast.getStart(ast, false);
     const updateCode = code.slice(0, pos) + importStatement + code.slice(pos);
