@@ -1,6 +1,9 @@
 # 🐤 kiwi cli
 
-Kiwi 的 CLI 工具，基于阿里巴巴的kiwi-cli进行封装，kiwi --extract 命令的时候支持百度翻译
+Kiwi 的 CLI 工具，基于阿里巴巴的kiwi-cli进行封装，
+
+支持kiwi --extract 命令的时候支持百度翻译
+支持kiwi --extract 命令扫描.js文件中的中文
 
 ## 如何使用
 
@@ -52,7 +55,7 @@ Kiwi 的 CLI 工具，基于阿里巴巴的kiwi-cli进行封装，kiwi --extract
 
 ### ca-kiwi `--extract`
 
-一键批量替换指定文件夹下的所有文案
+一键批量替换指定文件夹下的所有文案，如果配置了googleApiKey，使用Google翻译生成key，如果没有配置Google，则需要配置baiduApiKey，自动使用百度翻译生成key
 
 ```shell script
 ca-kiwi --extract [dirPath]
