@@ -10,7 +10,7 @@ import * as path from 'path';
 import { getSpecifiedFiles, readFile, writeFile } from './file';
 import { findChineseText } from './findChineseText';
 import { getSuggestLangObj } from './getLangData';
-import { translateText, findMatchKey, findMatchValue, translateTextByBaidu } from '../utils';
+import { translateText, findMatchKey, findMatchValue, translateTextByBaidu, translateTextByBing } from '../utils';
 import { replaceAndUpdate, hasImportI18N, createImportI18N } from './replace';
 import { getProjectConfig } from '../utils';
 
@@ -46,14 +46,10 @@ function findAllChineseText(dir: string) {
  * @param {dirPath} 文件夹路径
  */
 function extractAll(dirPath?: string) {
-  const {
-    baiduApiKey: { appId, appKey },
-    baiduLangMap
-  } = CONFIG;
-  if (!CONFIG.googleApiKey && (!appId || !appKey)) {
-    console.log('请配置googleApiKey或baiduApiKey');
-    return;
-  }
+  // if (!CONFIG.googleApiKey && (!appId || !appKey)) {
+  //   console.log('请配置googleApiKey或baiduApiKey');
+  //   return;
+  // }
 
   const dir = dirPath || './';
   const allTargetStrs = findAllChineseText(dir);
@@ -93,19 +89,13 @@ function extractAll(dirPath?: string) {
     let allTranslateTexts: any = [] // 翻译之后的文案数组
     // 使用Google翻译或者百度翻译翻译中文的前四位
     if (CONFIG.googleApiKey) {
-      const translatePromises = targetStrs.reduce((prev, curr) => {
-        // 避免翻译的字符里包含数字或者特殊字符等情况
-        const reg = /[^a-zA-Z\x00-\xff]+/g;
-        const findText = curr.text.match(reg);
-        const transText = findText ? findText.join('').slice(0, 4) : '中文符号';
-        return prev.concat(translateText(transText, 'en_US'));
-      }, []);
-
+      const translatePromises = translatePromisesFun(targetStrs);
       allTranslateTexts = Promise.all(translatePromises);
-    }else if (appId && appKey) {
-      allTranslateTexts = extractKeyByBaidu(targetStrs);
+    }else {
+      const translatePromises = translatePromisesFun(targetStrs);
+      allTranslateTexts = Promise.all(translatePromises);
     }
-
+ 
     allTranslateTexts.then(([...translateTexts]) => {
       const replaceableStrs = targetStrs.reduce((prev, curr, i) => {
         const key = findMatchKey(finalLangObj, curr.text);
@@ -182,55 +172,66 @@ function extractAll(dirPath?: string) {
   });
 }
 
-async function extractKeyByBaidu(targetStrs) {
-    const result = [];
-    const taskLists = {};
-    let lastIndex = 0;
-    // 由于百度api单词翻译字符长度限制，需要将待翻译的文案拆分成单个子任务
-    targetStrs.reduce((pre, next, index) => {
-      const currText = next.text;
-      // 避免翻译的字符里包含数字或者特殊字符等情况
-      const reg = /[^a-zA-Z\x00-\xff]+/g;
-      const findText = next.text.match(reg);
-      const transText = findText ? findText.join('').slice(0, 4) : '中文符号';
+// async function extractKeyByBaidu(targetStrs) {
+//     const result = [];
+//     const taskLists = {};
+//     let lastIndex = 0;
+//     // 由于百度api单词翻译字符长度限制，需要将待翻译的文案拆分成单个子任务
+//     targetStrs.reduce((pre, next, index) => {
+//       const currText = next.text;
+//       // 避免翻译的字符里包含数字或者特殊字符等情况
+//       const reg = /[^a-zA-Z\x00-\xff]+/g;
+//       const findText = next.text.match(reg);
+//       const transText = findText ? findText.join('').slice(0, 4) : '中文符号';
 
-      const byteLen = Buffer.byteLength(pre, 'utf8');
-      if (byteLen > 5500) {
-        // 获取翻译字节数，大于5500放到单独任务里面处理
-        taskLists[lastIndex] = () => {
-          return new Promise(resolve => {
-            setTimeout(() => {
-              resolve(translateTextByBaidu(pre, 'en_US'));
-            }, 1500);
-          });
-        };
-        lastIndex = index;
-        return next;
-      } else if (index === targetStrs.length - 1) {
-        taskLists[lastIndex] = () => {
-          return new Promise(resolve => {
-            setTimeout(() => {
-              resolve(translateTextByBaidu(`${pre}\n${transText}`, 'en_US'));
-            }, 1500);
-          });
-        };
-      }
-      return `${pre}\n${transText}`;
-    }, '');
+//       const byteLen = Buffer.byteLength(pre, 'utf8');
+//       if (byteLen > 5500) {
+//         // 获取翻译字节数，大于5500放到单独任务里面处理
+//         taskLists[lastIndex] = () => {
+//           return new Promise(resolve => {
+//             setTimeout(() => {
+//               resolve(translateTextByBaidu(pre, 'en_US'));
+//             }, 1500);
+//           });
+//         };
+//         lastIndex = index;
+//         return next;
+//       } else if (index === targetStrs.length - 1) {
+//         taskLists[lastIndex] = () => {
+//           return new Promise(resolve => {
+//             setTimeout(() => {
+//               resolve(translateTextByBaidu(`${pre}\n${transText}`, 'en_US'));
+//             }, 1500);
+//           });
+//         };
+//       }
+//       return `${pre}\n${transText}`;
+//     }, '');
 
-    // 由于百度api调用QPS只有1, 考虑网络延迟 每1.5s请求一个子任务
-    const taskKeys = Object.keys(taskLists);
-    if (taskKeys.length > 0) {
-      for (var i = 0; i < taskKeys.length; i++) {
-        const langIndexKey = taskKeys[i];
-        const taskItemFun = taskLists[langIndexKey];
-        const data = await taskItemFun();
-        (data || []).forEach(({ dst }, index) => {
-          result.push(dst);
-        });
-      }
-    }
-  return result;
+//     // 由于百度api调用QPS只有1, 考虑网络延迟 每1.5s请求一个子任务
+//     const taskKeys = Object.keys(taskLists);
+//     if (taskKeys.length > 0) {
+//       for (var i = 0; i < taskKeys.length; i++) {
+//         const langIndexKey = taskKeys[i];
+//         const taskItemFun = taskLists[langIndexKey];
+//         const data = await taskItemFun();
+//         (data || []).forEach(({ dst }, index) => {
+//           result.push(dst);
+//         });
+//       }
+//     }
+//   return result;
+// }
+
+function translatePromisesFun (targetStrs) {
+  const translatePromises = targetStrs.reduce((prev, curr) => {
+    // 避免翻译的字符里包含数字或者特殊字符等情况
+    const reg = /[^a-zA-Z\x00-\xff]+/g;
+    const findText = curr.text.match(reg);
+    const transText = findText ? findText.join('').slice(0, 4) : '中文符号';
+    return prev.concat(translateTextByBing(transText, 'en_US'));
+  }, []);
+  return translatePromises;
 }
 
 export { extractAll };

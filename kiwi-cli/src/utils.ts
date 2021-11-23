@@ -162,6 +162,26 @@ function translateText(text, toLang) {
 }
 
 /**
+ * 
+ * @param text 待翻译文案
+ * @param toLang 目标语种
+ * @returns 
+ */
+function translateTextByBing(text, toLang) {
+  const CONFIG = getProjectConfig();
+  const options = CONFIG.translateOptions;
+  const { translate: bingTranslate } = require('bing-translate-api');
+  return withTimeout(
+    new Promise((resolve, reject) => {
+      bingTranslate(text, null,'en', true).then((res) => {
+        resolve(res.translation);
+      })
+    }),
+    5000
+  );
+}
+
+/**
  * 百度单次翻译任务
  * @param text 待翻译文案
  * @param toLang 目标语种
@@ -278,5 +298,6 @@ export {
   flatten,
   lookForFiles,
   getTranslateOriginType,
-  translateTextByBaidu
+  translateTextByBaidu,
+  translateTextByBing
 };

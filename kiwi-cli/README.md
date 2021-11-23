@@ -2,8 +2,11 @@
 
 Kiwi 的 CLI 工具，基于阿里巴巴的kiwi-cli进行封装，
 
-支持kiwi --extract 命令的时候支持百度翻译
-支持kiwi --extract 命令扫描.js文件中的中文
+二次开发kiwi --extract 命令:
+
+- 支持扫描.js文件中的中文
+
+- 如果不配置googleApiKey，则使用Microsoft bing translate
 
 ## 如何使用
 
