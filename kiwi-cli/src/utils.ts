@@ -169,11 +169,13 @@ function translateText(text, toLang) {
  */
 function translateTextByBing(text, toLang) {
   const CONFIG = getProjectConfig();
-  const options = CONFIG.translateOptions;
+  const {
+    bingLangMap
+  } = CONFIG;
   const { translate: bingTranslate } = require('bing-translate-api');
   return withTimeout(
     new Promise((resolve, reject) => {
-      bingTranslate(text, null, toLang ? toLang : 'en', true).then((res) => {
+      bingTranslate(text, null, toLang ? bingLangMap[toLang] : 'en', true).then((res) => {
         resolve(res.translation);
       }).catch(err => {
         reject(err)
