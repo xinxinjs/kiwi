@@ -87,14 +87,9 @@ function extractAll(dirPath?: string) {
     }
 
     let allTranslateTexts: any = [] // 翻译之后的文案数组
-    // 使用Google翻译或者百度翻译翻译中文的前四位
-    if (CONFIG.googleApiKey) {
-      const translatePromises = translatePromisesFun(targetStrs);
-      allTranslateTexts = Promise.all(translatePromises);
-    }else {
-      const translatePromises = translatePromisesFun(targetStrs);
-      allTranslateTexts = Promise.all(translatePromises);
-    }
+    // 使用Google翻译或者bing翻译翻译中文的前四位
+    const translatePromises = translatePromisesFun(targetStrs);
+    allTranslateTexts = Promise.all(translatePromises);
  
     allTranslateTexts.then(([...translateTexts]) => {
       const replaceableStrs = targetStrs.reduce((prev, curr, i) => {
@@ -166,7 +161,7 @@ function extractAll(dirPath?: string) {
     })
     .catch(err => {
       if (err) {
-        console.log('google或百度翻译出问题了...');
+        console.log('翻译出问题了...', err);
       }
     });
   });
@@ -224,12 +219,13 @@ function extractAll(dirPath?: string) {
 // }
 
 function translatePromisesFun (targetStrs) {
+  const translateTextFun = CONFIG.googleApiKey ? translateText : translateTextByBing;
   const translatePromises = targetStrs.reduce((prev, curr) => {
     // 避免翻译的字符里包含数字或者特殊字符等情况
     const reg = /[^a-zA-Z\x00-\xff]+/g;
     const findText = curr.text.match(reg);
     const transText = findText ? findText.join('').slice(0, 4) : '中文符号';
-    return prev.concat(translateTextByBing(transText, 'en_US'));
+    return prev.concat(translateTextFun(transText, 'en_US'));
   }, []);
   return translatePromises;
 }
