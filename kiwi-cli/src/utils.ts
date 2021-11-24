@@ -173,8 +173,10 @@ function translateTextByBing(text, toLang) {
   const { translate: bingTranslate } = require('bing-translate-api');
   return withTimeout(
     new Promise((resolve, reject) => {
-      bingTranslate(text, null,'en', true).then((res) => {
+      bingTranslate(text, null, toLang ? toLang : 'en', true).then((res) => {
         resolve(res.translation);
+      }).catch(err => {
+        reject(err)
       })
     }),
     5000
