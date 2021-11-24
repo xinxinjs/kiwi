@@ -1,12 +1,33 @@
 # 🐤 kiwi cli
 
-Kiwi 的 CLI 工具，基于阿里巴巴的kiwi-cli进行封装，
+Kiwi 的 CLI 工具，基于kiwi-cli进行二次开发
 
-二次开发kiwi --extract 命令:
+## 二次开发内容：
+
+### kiwi --extract 命令:
 
 - 支持扫描.js文件中的中文
 
 - 如果不配置googleApiKey，则使用Microsoft bing translate
+
+### kiwi --translate 命令：
+
+- 新增使用bing translate翻译全部文案
+
+### kiwi --init 命令：
+
+生成的kiwi-config.json新增bingLangMap配置
+
+```js
+{
+  // bing translate map
+  bingLangMap: {
+    ['en-US']: 'en'
+  }
+}
+```
+
+详细map配置：https://github.com/plainheart/bing-translate-api/blob/master/src/lang.js
 
 ## 如何使用
 
