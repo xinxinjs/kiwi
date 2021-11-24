@@ -1,14 +1,25 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.lookForFiles = exports.flatten = exports.findMatchValue = exports.findMatchKey = exports.translateText = exports.getProjectConfig = exports.getAllMessages = exports.withTimeout = exports.retry = exports.traverse = exports.getLangDir = exports.getKiwiDir = void 0;
+exports.translateTextByBing = exports.translateTextByBaidu = exports.getTranslateOriginType = exports.lookForFiles = exports.flatten = exports.findMatchValue = exports.findMatchKey = exports.translateText = exports.getProjectConfig = exports.getAllMessages = exports.withTimeout = exports.retry = exports.traverse = exports.getLangDir = exports.getKiwiDir = void 0;
 /**
  * @author linhuiw
  * @desc 工具方法
  */
 const path = require("path");
 const _ = require("lodash");
+const inquirer = require("inquirer");
 const fs = require("fs");
 const const_1 = require("./const");
+const baiduTranslate = require("baidu-translate");
 function lookForFiles(dir, fileName) {
     const files = fs.readdirSync(dir);
     for (let file of files) {
@@ -37,7 +48,7 @@ function getProjectConfig() {
     const configFile = lookForFiles(rootDir, const_1.KIWI_CONFIG_FILE);
     let obj = const_1.PROJECT_CONFIG.defaultConfig;
     if (configFile && fs.existsSync(configFile)) {
-        obj = JSON.parse(fs.readFileSync(configFile, 'utf8'));
+        obj = Object.assign(Object.assign({}, obj), JSON.parse(fs.readFileSync(configFile, 'utf8')));
     }
     return obj;
 }
@@ -151,6 +162,49 @@ function translateText(text, toLang) {
     }), 5000);
 }
 exports.translateText = translateText;
+/**
+ *
+ * @param text 待翻译文案
+ * @param toLang 目标语种
+ * @returns
+ */
+function translateTextByBing(text, toLang) {
+    const CONFIG = getProjectConfig();
+    const options = CONFIG.translateOptions;
+    const { translate: bingTranslate } = require('bing-translate-api');
+    return withTimeout(new Promise((resolve, reject) => {
+        bingTranslate(text, null, toLang ? toLang : 'en', true).then((res) => {
+            resolve(res.translation);
+        }).catch(err => {
+            reject(err);
+        });
+    }), 5000);
+}
+exports.translateTextByBing = translateTextByBing;
+/**
+ * 百度单次翻译任务
+ * @param text 待翻译文案
+ * @param toLang 目标语种
+ */
+function translateTextByBaidu(text, toLang) {
+    const CONFIG = getProjectConfig();
+    const { baiduApiKey: { appId, appKey }, baiduLangMap } = CONFIG;
+    return withTimeout(new Promise((resolve, reject) => {
+        baiduTranslate(appId, appKey, baiduLangMap[toLang], 'zh')(text)
+            .then(data => {
+            if (data && data.trans_result) {
+                resolve(data.trans_result);
+            }
+            else {
+                reject(`\n百度翻译api调用异常 error_code: ${data.error_code}, error_msg: ${data.error_msg}`);
+            }
+        })
+            .catch(err => {
+            reject(err);
+        });
+    }), 3000);
+}
+exports.translateTextByBaidu = translateTextByBaidu;
 function findMatchKey(langObj, text) {
     for (const key in langObj) {
         if (langObj[key] === text) {
@@ -186,4 +240,44 @@ function flatten(obj, prefix = '') {
     return ret;
 }
 exports.flatten = flatten;
+/**
+ * 获取翻译源类型
+ */
+function getTranslateOriginType() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const { googleApiKey, baiduApiKey } = getProjectConfig();
+        let translateType = ['Google', 'Baidu'];
+        if (!googleApiKey) {
+            translateType = translateType.filter(item => item !== 'Google');
+        }
+        if (!baiduApiKey || !baiduApiKey.appId || !baiduApiKey.appKey) {
+            translateType = translateType.filter(item => item !== 'Baidu');
+        }
+        if (translateType.length === 0) {
+            console.log('请配置 googleApiKey 或 baiduApiKey ');
+            return {
+                pass: false,
+                origin: ''
+            };
+        }
+        if (translateType.length == 1) {
+            return {
+                pass: true,
+                origin: translateType[0]
+            };
+        }
+        const { origin } = yield inquirer.prompt({
+            type: 'list',
+            name: 'origin',
+            message: '请选择使用的翻译源',
+            default: 'Google',
+            choices: ['Google', 'Baidu']
+        });
+        return {
+            pass: true,
+            origin: origin
+        };
+    });
+}
+exports.getTranslateOriginType = getTranslateOriginType;
 //# sourceMappingURL=utils.js.map
