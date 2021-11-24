@@ -255,20 +255,20 @@ function flatten(obj, prefix = '') {
  */
 async function getTranslateOriginType() {
   const { googleApiKey, baiduApiKey } = getProjectConfig();
-  let translateType = ['Google', 'Baidu'];
+  let translateType = ['Google', 'Baidu', 'Bing'];
   if (!googleApiKey) {
     translateType = translateType.filter(item => item !== 'Google');
   }
   if (!baiduApiKey || !baiduApiKey.appId || !baiduApiKey.appKey) {
     translateType = translateType.filter(item => item !== 'Baidu');
   }
-  if (translateType.length === 0) {
-    console.log('请配置 googleApiKey 或 baiduApiKey ');
-    return {
-      pass: false,
-      origin: ''
-    };
-  }
+  // if (translateType.length === 0) {
+  //   console.log('请配置 googleApiKey 或 baiduApiKey ');
+  //   return {
+  //     pass: false,
+  //     origin: ''
+  //   };
+  // }
   if (translateType.length == 1) {
     return {
       pass: true,
@@ -280,7 +280,7 @@ async function getTranslateOriginType() {
     name: 'origin',
     message: '请选择使用的翻译源',
     default: 'Google',
-    choices: ['Google', 'Baidu']
+    choices: ['Google', 'Baidu', 'Bing']
   });
   return {
     pass: true,

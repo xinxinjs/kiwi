@@ -11,7 +11,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as baiduTranslate from 'baidu-translate';
 import { tsvFormatRows } from 'd3-dsv';
-import { getProjectConfig, getLangDir, withTimeout, translateText, translateTextByBaidu } from './utils';
+import { getProjectConfig, getLangDir, withTimeout, translateText, translateTextByBaidu, translateTextByBing } from './utils';
 import { importMessages } from './import';
 import { getAllUntranslatedTexts } from './mock';
 
@@ -33,6 +33,26 @@ function textToUpperCaseByFirstWord(text) {
 async function googleTranslateTexts(untranslatedTexts, toLang) {
   const translateAllTexts = Object.keys(untranslatedTexts).map(key => {
     return translateText(untranslatedTexts[key], toLang).then(translatedText => [key, translatedText]);
+  });
+  return new Promise(resolve => {
+    const result = {};
+    Promise.all(translateAllTexts).then(res => {
+      res.forEach(([key, translatedText]) => {
+        result[key] = translatedText;
+      });
+      resolve(result);
+    });
+  });
+}
+
+/**
+ * 使用bing翻译所有待翻译的文案
+ * @param untranslatedTexts 待翻译文案
+ * @param toLang 目标语种
+ */
+ async function bingTranslateTexts(untranslatedTexts, toLang) {
+  const translateAllTexts = Object.keys(untranslatedTexts).map(key => {
+    return translateTextByBing(untranslatedTexts[key], toLang).then(translatedText => [key, translatedText]);
   });
   return new Promise(resolve => {
     const result = {};
@@ -109,8 +129,10 @@ async function runTranslateApi(dstLang: string, origin: string) {
   let mocks = {};
   if (origin === 'Google') {
     mocks = await googleTranslateTexts(untranslatedTexts, dstLang);
-  } else {
+  } else if(origin === 'Baidu') {
     mocks = await baiduTranslateTexts(untranslatedTexts, dstLang);
+  } else {
+    mocks = await bingTranslateTexts(untranslatedTexts, dstLang);
   }
 
   const messagesToTranslate = Object.keys(mocks).map(key => [key, mocks[key]]);
@@ -145,11 +167,16 @@ async function translate(origin: string) {
       return runTranslateApi(lang, origin);
     });
     return Promise.all(mockPromise);
-  } else {
+  } else if(origin === 'Baidu') {
     for (var i = 0; i < langs.length; i++) {
       await runTranslateApi(langs[i], origin);
     }
     return Promise.resolve();
+  } else {
+    const mockPromise = langs.map(lang => {
+      return runTranslateApi(lang, origin);
+    });
+    return Promise.all(mockPromise);
   }
 }
 
