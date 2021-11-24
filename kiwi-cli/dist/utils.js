@@ -170,10 +170,10 @@ exports.translateText = translateText;
  */
 function translateTextByBing(text, toLang) {
     const CONFIG = getProjectConfig();
-    const options = CONFIG.translateOptions;
+    const { bingLangMap } = CONFIG;
     const { translate: bingTranslate } = require('bing-translate-api');
     return withTimeout(new Promise((resolve, reject) => {
-        bingTranslate(text, null, toLang ? toLang : 'en', true).then((res) => {
+        bingTranslate(text, null, toLang ? bingLangMap[toLang] : 'en', true).then((res) => {
             resolve(res.translation);
         }).catch(err => {
             reject(err);
@@ -246,20 +246,20 @@ exports.flatten = flatten;
 function getTranslateOriginType() {
     return __awaiter(this, void 0, void 0, function* () {
         const { googleApiKey, baiduApiKey } = getProjectConfig();
-        let translateType = ['Google', 'Baidu'];
+        let translateType = ['Google', 'Baidu', 'Bing'];
         if (!googleApiKey) {
             translateType = translateType.filter(item => item !== 'Google');
         }
         if (!baiduApiKey || !baiduApiKey.appId || !baiduApiKey.appKey) {
             translateType = translateType.filter(item => item !== 'Baidu');
         }
-        if (translateType.length === 0) {
-            console.log('请配置 googleApiKey 或 baiduApiKey ');
-            return {
-                pass: false,
-                origin: ''
-            };
-        }
+        // if (translateType.length === 0) {
+        //   console.log('请配置 googleApiKey 或 baiduApiKey ');
+        //   return {
+        //     pass: false,
+        //     origin: ''
+        //   };
+        // }
         if (translateType.length == 1) {
             return {
                 pass: true,
@@ -271,7 +271,7 @@ function getTranslateOriginType() {
             name: 'origin',
             message: '请选择使用的翻译源',
             default: 'Google',
-            choices: ['Google', 'Baidu']
+            choices: ['Google', 'Baidu', 'Bing']
         });
         return {
             pass: true,

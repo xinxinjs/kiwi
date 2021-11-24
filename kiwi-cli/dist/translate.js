@@ -56,6 +56,27 @@ function googleTranslateTexts(untranslatedTexts, toLang) {
 }
 exports.googleTranslateTexts = googleTranslateTexts;
 /**
+ * 使用bing翻译所有待翻译的文案
+ * @param untranslatedTexts 待翻译文案
+ * @param toLang 目标语种
+ */
+function bingTranslateTexts(untranslatedTexts, toLang) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const translateAllTexts = Object.keys(untranslatedTexts).map(key => {
+            return utils_1.translateTextByBing(untranslatedTexts[key], toLang).then(translatedText => [key, translatedText]);
+        });
+        return new Promise(resolve => {
+            const result = {};
+            Promise.all(translateAllTexts).then(res => {
+                res.forEach(([key, translatedText]) => {
+                    result[key] = translatedText;
+                });
+                resolve(result);
+            });
+        });
+    });
+}
+/**
  * 使用百度翻译所有待翻译的文案
  * @param untranslatedTexts 待翻译文案
  * @param toLang 目标语种
@@ -122,8 +143,11 @@ function runTranslateApi(dstLang, origin) {
         if (origin === 'Google') {
             mocks = yield googleTranslateTexts(untranslatedTexts, dstLang);
         }
-        else {
+        else if (origin === 'Baidu') {
             mocks = yield baiduTranslateTexts(untranslatedTexts, dstLang);
+        }
+        else {
+            mocks = yield bingTranslateTexts(untranslatedTexts, dstLang);
         }
         const messagesToTranslate = Object.keys(mocks).map(key => [key, mocks[key]]);
         if (messagesToTranslate.length === 0) {
@@ -160,11 +184,17 @@ function translate(origin) {
             });
             return Promise.all(mockPromise);
         }
-        else {
+        else if (origin === 'Baidu') {
             for (var i = 0; i < langs.length; i++) {
                 yield runTranslateApi(langs[i], origin);
             }
             return Promise.resolve();
+        }
+        else {
+            const mockPromise = langs.map(lang => {
+                return runTranslateApi(lang, origin);
+            });
+            return Promise.all(mockPromise);
         }
     });
 }
