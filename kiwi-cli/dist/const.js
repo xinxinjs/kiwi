@@ -13,15 +13,17 @@ exports.PROJECT_CONFIG = {
         kiwiDir: './.kiwi',
         configFile: `./.kiwi/${exports.KIWI_CONFIG_FILE}`,
         srcLang: 'zh-CN',
-        distLangs: ['en-US', 'zh-TW'],
+        distLangs: ['en-US'],
         googleApiKey: '',
         baiduApiKey: {
             appId: '',
             appKey: ''
         },
         baiduLangMap: {
-            ['en-US']: 'en',
-            ['zh-TW']: 'cht'
+            ['en-US']: 'en'
+        },
+        bingLangMap: {
+            ['en-US']: 'en'
         },
         translateOptions: {
             concurrentLimit: 10,
@@ -32,8 +34,7 @@ exports.PROJECT_CONFIG = {
         ignoreFile: ''
     },
     langMap: {
-        ['en-US']: 'en',
-        ['en_US']: 'en'
+        ['en-US']: 'en'
     },
     zhIndexFile: `import common from './common';
 
