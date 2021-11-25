@@ -180,4 +180,4 @@ async function translate(origin: string) {
   }
 }
 
-export { translate, baiduTranslateTexts, googleTranslateTexts };
+export { translate, baiduTranslateTexts, googleTranslateTexts, bingTranslateTexts };

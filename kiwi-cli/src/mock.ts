@@ -12,7 +12,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as _ from 'lodash';
 import { traverse, getProjectConfig, getLangDir, translateText } from './utils';
-import { baiduTranslateTexts, googleTranslateTexts } from './translate';
+import { baiduTranslateTexts, googleTranslateTexts, bingTranslateTexts } from './translate';
 
 const CONFIG = getProjectConfig();
 
@@ -68,8 +68,10 @@ async function mockCurrentLang(dstLang: string, origin: string) {
   let mocks = {};
   if (origin === 'Google') {
     mocks = await googleTranslateTexts(untranslatedTexts, dstLang);
-  } else {
+  } else if (origin === 'Baidu') {
     mocks = await baiduTranslateTexts(untranslatedTexts, dstLang);
+  } else {
+    mocks = await bingTranslateTexts(untranslatedTexts, dstLang);
   }
 
   /** 所有任务执行完毕后，写入mock文件 */
@@ -104,11 +106,16 @@ async function mockLangs(origin: string) {
       return mockCurrentLang(lang, origin);
     });
     return Promise.all(mockPromise);
-  } else {
+  } else if(origin === 'Baidu') {
     for (var i = 0; i < langs.length; i++) {
       await mockCurrentLang(langs[i], origin);
     }
     return Promise.resolve();
+  } else {
+    const mockPromise = langs.map(lang => {
+      return mockCurrentLang(lang, origin);
+    });
+    return Promise.all(mockPromise);
   }
 }
 
