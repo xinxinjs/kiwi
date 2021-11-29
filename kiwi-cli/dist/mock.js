@@ -77,8 +77,11 @@ function mockCurrentLang(dstLang, origin) {
         if (origin === 'Google') {
             mocks = yield translate_1.googleTranslateTexts(untranslatedTexts, dstLang);
         }
-        else {
+        else if (origin === 'Baidu') {
             mocks = yield translate_1.baiduTranslateTexts(untranslatedTexts, dstLang);
+        }
+        else {
+            mocks = yield translate_1.bingTranslateTexts(untranslatedTexts, dstLang);
         }
         /** 所有任务执行完毕后，写入mock文件 */
         return writeMockFile(dstLang, mocks);
@@ -116,11 +119,17 @@ function mockLangs(origin) {
             });
             return Promise.all(mockPromise);
         }
-        else {
+        else if (origin === 'Baidu') {
             for (var i = 0; i < langs.length; i++) {
                 yield mockCurrentLang(langs[i], origin);
             }
             return Promise.resolve();
+        }
+        else {
+            const mockPromise = langs.map(lang => {
+                return mockCurrentLang(lang, origin);
+            });
+            return Promise.all(mockPromise);
         }
     });
 }

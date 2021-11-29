@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.googleTranslateTexts = exports.baiduTranslateTexts = exports.translate = void 0;
+exports.bingTranslateTexts = exports.googleTranslateTexts = exports.baiduTranslateTexts = exports.translate = void 0;
 /**
  * @author zongwenjian
  * @desc 全量翻译 translate命令
@@ -76,6 +76,7 @@ function bingTranslateTexts(untranslatedTexts, toLang) {
         });
     });
 }
+exports.bingTranslateTexts = bingTranslateTexts;
 /**
  * 使用百度翻译所有待翻译的文案
  * @param untranslatedTexts 待翻译文案
